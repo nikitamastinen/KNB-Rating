@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1027407729900",
+    "firebase_url": "https://cross-and-nulls.firebaseio.com",
+    "project_id": "cross-and-nulls",
+    "storage_bucket": "cross-and-nulls.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1027407729900:android:953f1f7ebc55ee95b6c1c9",
+        "android_client_info": {
+          "package_name": "com.example.crossandnulls"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1027407729900-a87qqml4kv1sooigc97ss7adjnu2e4rt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJnKTu_ZruV7tUXD00IqhapWbBAm3timE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1027407729900-a87qqml4kv1sooigc97ss7adjnu2e4rt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
