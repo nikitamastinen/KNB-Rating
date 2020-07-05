@@ -11,7 +11,11 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.inflate
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -20,11 +24,15 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import com.jjoe64.graphview.series.PointsGraphSeries
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main_item.view.*
 import kotlin.math.max
 
 
 class MainActivity : AppCompatActivity() {
 
+    //TODO too long names
+    //TODO Double people in rating list
+    //TODO float points in graph (minX = 4)
     override fun onCreate(savedInstanceState: Bundle?) {
         CONTEXT = this
         super.onCreate(savedInstanceState)
@@ -60,13 +68,14 @@ class MainActivity : AppCompatActivity() {
                     graph.addSeries(series2)
                     graph.addSeries(series)
                     graph.viewport.setMinX(0.0)
-                    graph.viewport.setMaxX(HISTORY.size.toDouble())
+                    graph.viewport.setMaxX(max(4.0, HISTORY.size.toDouble()))
                     graph.viewport.setMinY(0.0)
                     var mxY = 0
                     for (i in HISTORY) mxY = max(mxY, i)
                     mxY.toDouble().let { graph.viewport.setMaxY(it + 300.0) }
                     graph.viewport.isYAxisBoundsManual = true
                     graph.viewport.isXAxisBoundsManual = true
+                    myRef.child("users").child(username()!!).child("current-rating").setValue(HISTORY.last())
                 } else {
                     val text = username() + " (Не в рейтинге)"
                     textView.text = text
@@ -79,6 +88,30 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("username", "")
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        var TOP: MutableList<Pair<String, Int>> = mutableListOf()
+        myRef.child("users").orderByChild("current-rating").limitToLast(30).addValueEventListener(object: ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {}
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (i in snapshot.children) {
+                    if (i.hasChild("rating")) {
+                        val n = i.child("rating").childrenCount.toInt() - 1
+                        TOP.add(Pair(i.key.toString(), i.child("rating").child("$n").value.toString().toInt()))
+                    }
+                }
+                ratingLinearLayout.removeAllViews()
+                for (i in TOP.reversed()) {
+                    val view: View =
+                        layoutInflater.inflate(R.layout.activity_main_item, ratingLinearLayout, false)
+                    view.itemName.text = i.first
+                    view.itemRating.text = i.second.toString()
+                    ratingLinearLayout.addView(view)
+                }
+            }
+        })
     }
 }
 

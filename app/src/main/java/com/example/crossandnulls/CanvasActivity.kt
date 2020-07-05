@@ -1,5 +1,6 @@
 package com.example.crossandnulls
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -18,6 +19,21 @@ class CanvasActivity : AppCompatActivity() {
 
         val username: String = username()!!
         val opponentname: String = intent.getStringExtra("opponentname")!!
+
+
+        myRef.child("users").child(opponentname).child("rating").addListenerForSingleValueEvent(object: ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {}
+            @SuppressLint("SetTextI18n")
+            override fun onDataChange(snapshot: DataSnapshot) {
+                usernameCanvas.text = username + " (" + (if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last()).toString() + ")"
+                val n = snapshot.childrenCount
+                opponentnameCanvas.text = opponentname +" (" + if (n > 0) {
+                    snapshot.child((n - 1).toString()).value.toString().toInt()
+                } else {
+                    ratingAtStart
+                }.toString() + ")"
+            }
+        })
 
         val positionData = myRef.child("games").child(encodeGame(username, opponentname))
         var pressed = false
@@ -70,7 +86,7 @@ class CanvasActivity : AppCompatActivity() {
                                 myRef.child("users").child(opponentname).child("rating")
                                     .child(n.toString()).setValue(
                                     updateRating(
-                                        HISTORY.last(),
+                                        if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last(),
                                         snapshot.child((n - 1).toString()).value.toString().toInt(),
                                         r
                                     ).second

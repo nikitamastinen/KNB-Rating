@@ -31,7 +31,7 @@ class StartAppActivity : AppCompatActivity() {
                     if (v?.text == null || v.text?.length!! < 3) {
                         Toast.makeText(this@StartAppActivity, "Слишком короткое имя", Toast.LENGTH_LONG).show()
                     } else {
-                        if (v.text.length > 20) {
+                        if (v.text.length > 10) {
                             Toast.makeText(this@StartAppActivity, "Слишком длинное имя", Toast.LENGTH_LONG).show()
                         } else if (v.text.toString().contains(' ')) {
                             Toast.makeText(this@StartAppActivity, "Имя не должно содержать пробелы", Toast.LENGTH_LONG).show()
