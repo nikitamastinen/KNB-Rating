@@ -17,6 +17,11 @@ import kotlinx.android.synthetic.main.activity_start_app.*
 
 class StartAppActivity : AppCompatActivity() {
 
+    override fun onResume() {
+        super.onResume()
+        CONTEXT = this
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         CONTEXT = this
         super.onCreate(savedInstanceState)
