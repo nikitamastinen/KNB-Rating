@@ -16,6 +16,7 @@ import android.view.View
 import android.view.View.inflate
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.gms.tasks.OnSuccessListener
@@ -84,42 +85,40 @@ class MainActivity : AppCompatActivity() {
         graph.addSeries(series2)
         graph.addSeries(series)
 
-        myRef.child("users").child(username()!!).child("rating").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onCancelled(error: DatabaseError) {}
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    HISTORY = snapshot.value as List<Int>
-                    val text = username() + " (" + HISTORY.last() + ")"
-                    textView.setTextColor(colorByRating(HISTORY.last()))
-                    window.statusBarColor = colorByRating(HISTORY.last())
-                    supportActionBar?.setBackgroundDrawable(ColorDrawable(colorByRating(HISTORY.last())))
-                    textView.text = text
-                    val data: Array<DataPoint> = Array(HISTORY.size) {i -> DataPoint(i.toDouble(), HISTORY[i].toDouble())}
-                    Log.w("HISTORY", data.toString())
-                    series = PointsGraphSeries(data)
-                    series2 = LineGraphSeries(data)
-                    series.size = 10f
-                    series.color = Color.BLACK
-                    series2.color = Color.BLACK
-                    graph.clearFocus()
-                    graph.viewport.setMinX(0.0)
-                    graph.viewport.setMaxX(max(4.0, HISTORY.size.toDouble()))
-                    graph.viewport.setMinY(0.0)
-                    var mxY = 0
-                    for (i in HISTORY) mxY = max(mxY, i)
-                    updateGraphColors(graph, max(4.0, HISTORY.size.toDouble()), mxY.toDouble() + 300.0)
-                    graph.addSeries(series2)
-                    graph.addSeries(series)
-                    mxY.toDouble().let { graph.viewport.setMaxY(it + 300.0) }
-                    graph.viewport.isYAxisBoundsManual = true
-                    graph.viewport.isXAxisBoundsManual = true
-                    myRef.child("users").child(username()!!).child("current-rating").setValue(HISTORY.last())
-                } else {
-                    val text = username() + " (Не в рейтинге)"
-                    textView.text = text
-                }
-            }
-        })
+
+        val snapshot = getList(this)
+        Toast.makeText(this, snapshot.size.toString(), Toast.LENGTH_LONG).show()
+        if (snapshot.isNotEmpty()) {
+            HISTORY = snapshot as MutableList<Int>
+            val text = username() + " (" + HISTORY.last() + ")"
+            textView.setTextColor(colorByRating(HISTORY.last()))
+            window.statusBarColor = colorByRating(HISTORY.last())
+            supportActionBar?.setBackgroundDrawable(ColorDrawable(colorByRating(HISTORY.last())))
+            textView.text = text
+            val data: Array<DataPoint> = Array(HISTORY.size) {i -> DataPoint(i.toDouble(), HISTORY[i].toDouble())}
+            Log.w("HISTORY", data.toString())
+            series = PointsGraphSeries(data)
+            series2 = LineGraphSeries(data)
+            series.size = 10f
+            series.color = Color.BLACK
+            series2.color = Color.BLACK
+            graph.clearFocus()
+            graph.viewport.setMinX(0.0)
+            graph.viewport.setMaxX(max(4.0, HISTORY.size.toDouble()))
+            graph.viewport.setMinY(0.0)
+            var mxY = 0
+            for (i in HISTORY) mxY = max(mxY, i)
+            updateGraphColors(graph, max(4.0, HISTORY.size.toDouble()), mxY.toDouble() + 300.0)
+            graph.addSeries(series2)
+            graph.addSeries(series)
+            mxY.toDouble().let { graph.viewport.setMaxY(it + 300.0) }
+            graph.viewport.isYAxisBoundsManual = true
+            graph.viewport.isXAxisBoundsManual = true
+            myRef.child("users").child(username()!!).child("current-rating").setValue(HISTORY.last())
+        } else {
+            val text = username() + " (Не в рейтинге)"
+            textView.text = text
+        }
 
         playOnline.setOnClickListener {
             val intent = Intent(this, LoadingBeforePlayActivity::class.java)
@@ -145,9 +144,8 @@ class MainActivity : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {}
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (i in snapshot.children) {
-                    if (i.hasChild("rating")) {
-                        val n = i.child("rating").childrenCount.toInt() - 1
-                        TOP.add(Pair(i.key.toString(), i.child("rating").child("$n").value.toString().toInt()))
+                    if (i.hasChild("current-rating")) {
+                        TOP.add(Pair(i.key.toString(), i.child("current-rating").value.toString().toInt()))
                     }
                 }
                 ratingLinearLayout.removeAllViews()

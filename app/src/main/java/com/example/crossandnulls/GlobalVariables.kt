@@ -28,8 +28,37 @@ fun username(context: Context? = CONTEXT): String? {
     return prefs?.getString("username", "")
 }
 
+fun putList(lst: List<Int>, context: Context?) {
+    val prefs = context?.getSharedPreferences("UserData", Context.MODE_PRIVATE)
+    val editor = prefs?.edit()
+    for (i in lst.indices) {
+        editor?.putString("rating/$i", lst[i].toString())
+        editor?.apply()
+    }
+}
+
+fun putListItem(position: Int, value: Int, context: Context?) {
+    val prefs = context?.getSharedPreferences("UserData", Context.MODE_PRIVATE)
+    val editor = prefs?.edit()
+    HISTORY.add(value)
+    editor?.putString("rating/$position", value.toString())
+    editor?.apply()
+}
+
+fun getList(context: Context?): List<Int> {
+    val prefs = context?.getSharedPreferences("UserData", Context.MODE_PRIVATE)
+    val emLst = mutableListOf<Int>()
+    var cnt = 0
+    while (prefs?.getString("rating/$cnt", "") != "") {
+        prefs?.getString("rating/$cnt", "")?.toInt()?.let { emLst.add(it) }
+        cnt++
+    }
+    HISTORY = emLst
+    return emLst
+}
+
 //rating history
-var HISTORY: List<Int> = listOf()
+var HISTORY: MutableList<Int> = mutableListOf()
 
 // rating at start
 var ratingAtStart = 1000
@@ -56,6 +85,7 @@ var colorsRating: List<Int> = listOf(
     Color.rgb(220, 160, 220),
     Color.GREEN,
     Color.rgb(200, 200, 0),
+    Color.RED,
     Color.RED,
     Color.rgb(30, 30, 100))
 

@@ -32,18 +32,18 @@ class LoadingBeforePlayActivity : AppCompatActivity() {
             override fun run() {
                 runOnUiThread {
                     if (timerCnt == 0) {
-                        myRef.child("wait-list").child(username).removeValue()
-                        myRef.child("users").child(username).child("games").child("Кротик").setValue("0")
-                        myRef.child("games").child(encodeGame("Кротик", username)).child("Кротик").setValue(
-                            System.currentTimeMillis() % 3 + 1)
+                        //myRef.child("wait-list").child(username).removeValue()
+                        //myRef.child("users").child(username).child("games").child("Кротик").setValue("0")
+                        //myRef.child("games").child(encodeGame("Кротик", username)).child("Кротик").setValue(
+                          //  System.currentTimeMillis() % 3 + 1)
                     }
                     timerCnt--
                 }
             }
         }, 0, 1000L)
 
-
-        listener = myRef.child("wait-list").addValueEventListener(object: ValueEventListener {
+        myRef.child("wait-list").child(username).setValue(username)
+       /*listener = myRef.child("wait-list").addValueEventListener(object: ValueEventListener {
             override fun onCancelled(error: DatabaseError) {}
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (!snapshot.hasChildren()) {
@@ -54,21 +54,22 @@ class LoadingBeforePlayActivity : AppCompatActivity() {
                             val opponentname = i.value as String
                             helpTimer.cancel()
                             helpTimer = Timer(true)
+                            myRef.child("wait-list").removeEventListener(this)
                             myRef.child("wait-list").child(i.value as String).removeValue()
                             myRef.child("users").child(username).child("games").child(opponentname).setValue("0")
                             myRef.child("users").child(opponentname).child("games").child(username).setValue("0")
-                            myRef.child("wait-list").removeEventListener(this)
+                            break
                         }
                     }
                 }
             }
-        })
+        })*/
     }
 
     override fun onPause() {
         super.onPause()
         isLoading = false
-        listener?.let { myRef.child("wait-list").removeEventListener(it) }
+        //listener?.let { myRef.child("wait-list").removeEventListener(it) }
         myRef.child("wait-list").child(username(CONTEXT)!!).removeValue()
         myRef.child("users").child(username(CONTEXT)!!).child("games").removeValue()
         finish()

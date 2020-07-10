@@ -17,6 +17,8 @@ class CanvasActivity : AppCompatActivity() {
 
     private var username: String = String()
     private var opponentname: String = String()
+    private var usernameRating = ratingAtStart
+    private var opponentnameRating = ratingAtStart
     private var finished = false
 
     override fun onBackPressed() {
@@ -41,6 +43,7 @@ class CanvasActivity : AppCompatActivity() {
         var pressed = false
         username = username()!!
         opponentname = intent.getStringExtra("opponentname")!!
+
         val positionData = myRef.child("games").child(encodeGame(username, opponentname))
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
@@ -60,22 +63,29 @@ class CanvasActivity : AppCompatActivity() {
                 }
             }
         }, 0, 1000L)
-        myRef.child("users").child(opponentname).child("rating").addListenerForSingleValueEvent(object: ValueEventListener {
+        myRef.child("users").child(opponentname).child("current-rating").addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(error: DatabaseError) {}
             @SuppressLint("SetTextI18n")
             override fun onDataChange(snapshot: DataSnapshot) {
+                usernameRating = if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last()
+                opponentnameRating = if (snapshot.exists()) {
+                    snapshot.value.toString().toInt()
+                } else {
+                    ratingAtStart
+                }
                 opponentnameCanvas.text = username + " (" + (if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last()).toString() + ")"
                 opponentnameCanvas.setTextColor(colorByRating(if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last()))
-                val n = snapshot.childrenCount
-                usernameCanvas.text = "$opponentname (" + if (n > 0) {
-                    snapshot.child((n - 1).toString()).value.toString().toInt()
+
+
+                usernameCanvas.text = "$opponentname (" + if (snapshot.exists()) {
+                    snapshot.value.toString().toInt()
                 } else {
                     ratingAtStart
                 }.toString() + ")"
 
                 usernameCanvas.setTextColor(
-                    colorByRating(if (n > 0) {
-                    snapshot.child((n - 1).toString()).value.toString().toInt()
+                    colorByRating(if (snapshot.exists()) {
+                    snapshot.value.toString().toInt()
                 } else {
                     ratingAtStart
                 }))
@@ -130,20 +140,19 @@ class CanvasActivity : AppCompatActivity() {
                     } else {
                         0.0
                     }
-                    myRef.child("users").child(opponentname).child("rating").addListenerForSingleValueEvent(object: ValueEventListener {
+                    putListItem(HISTORY.size, updateRating(usernameRating, opponentnameRating, r).first, this@CanvasActivity)
+                    myRef.child("users").child(username).child("current-rating").setValue(updateRating(usernameRating, opponentnameRating, r).first)
+                    /*myRef.child("users").child(opponentname).child("current-rating").addListenerForSingleValueEvent(object: ValueEventListener {
                         override fun onCancelled(error: DatabaseError) {}
                         override fun onDataChange(snapshot: DataSnapshot) {
-                            val n = snapshot.childrenCount
-                            if (n > 0) {
-                                myRef.child("users").child(opponentname).child("rating")
-                                    .child(n.toString()).setValue(
-                                        updateRating(
-                                            if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last(),
-                                            snapshot.child((n - 1).toString()).value.toString()
-                                                .toInt(),
-                                            r
-                                        ).second
-                                    )
+                            if (snapshot.exists()) {
+                                putListItem((snapshot.value.toString(), updateRating(
+                                    if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last(),
+                                    snapshot.child((n - 1).toString()).value.toString()
+                                        .toInt(),
+                                    r
+                                ).second, this@CanvasActivity)
+
                                 myRef.child("users").child(opponentname).child("current-rating")
                                     .setValue(
                                         updateRating(
@@ -153,20 +162,18 @@ class CanvasActivity : AppCompatActivity() {
                                             r
                                         ).second
                                     )
-                                if (StupidPlayers.contains(opponentname)) {
+                                /*if (StupidPlayers.contains(opponentname)) {
                                     myRef.child("users").child(username).child("rating").addListenerForSingleValueEvent(object: ValueEventListener {
                                         override fun onCancelled(error: DatabaseError) {}
                                         override fun onDataChange(snapshot: DataSnapshot) {
                                             val n1 = snapshot.childrenCount
-                                            myRef.child("users").child(username).child("rating")
-                                                .child(n1.toString()).setValue(
-                                                    updateRating(
-                                                        if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last(),
-                                                        snapshot.child((n1 - 1).toString()).value.toString()
-                                                            .toInt(),
-                                                        r
-                                                    ).first
-                                                )
+                                            putListItem(n1.toInt(), updateRating(
+                                                if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last(),
+                                                snapshot.child((n1 - 1).toString()).value.toString()
+                                                    .toInt(),
+                                                r
+                                            ).first, this@CanvasActivity)
+
                                             myRef.child("users").child(username).child("current-rating")
                                                 .setValue(
                                                     updateRating(
@@ -177,17 +184,15 @@ class CanvasActivity : AppCompatActivity() {
                                                     ).first
                                                 )
                                         }
-                                    })
-                                }
+                                    })*/
+                                //}
                             } else {
-                                myRef.child("users").child(opponentname).child("rating")
-                                    .child(n.toString()).setValue(
-                                        updateRating(
-                                            if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last(),
-                                            ratingAtStart,
-                                            r
-                                        ).second
-                                    )
+                                putListItem(n.toInt(), updateRating(
+                                    if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last(),
+                                    ratingAtStart,
+                                    r
+                                ).second, this@CanvasActivity)
+
                                 myRef.child("users").child(opponentname).child("current-rating").setValue(
                                     updateRating(
                                         if (HISTORY.isEmpty()) ratingAtStart else HISTORY.last(),
@@ -195,7 +200,7 @@ class CanvasActivity : AppCompatActivity() {
                                         r
                                     ).second
                                 )
-                                if (StupidPlayers.contains(opponentname)) {
+                               /* if (StupidPlayers.contains(opponentname)) {
                                     myRef.child("users").child(username).child("rating").addListenerForSingleValueEvent(object: ValueEventListener {
                                         override fun onCancelled(error: DatabaseError) {}
                                         override fun onDataChange(snapshot: DataSnapshot) {
@@ -219,10 +224,10 @@ class CanvasActivity : AppCompatActivity() {
                                                 )
                                         }
                                     })
-                                }
+                                }*/
                             }
                         }
-                    })
+                    })*/
                     positionData.removeEventListener(this)
                     positionData.removeValue()
                     Toast.makeText(this@CanvasActivity, res, Toast.LENGTH_LONG).show()
