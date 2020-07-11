@@ -34,7 +34,6 @@ import java.sql.Time
 import java.util.*
 import kotlin.math.max
 
-
 class MainActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
@@ -42,16 +41,11 @@ class MainActivity : AppCompatActivity() {
         finishAffinity()
     }
 
-    //TODO too long names
-    //TODO Double people in rating list
-    //TODO float points in graph (minX = 4)
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
         CONTEXT = this
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.BLACK))
-        window.statusBarColor = colorByRating(Color.BLACK)
         var username = username().toString()
         myRef.child("users").child(username).child("games").addChildEventListener(object:
             ChildEventListener {
@@ -70,7 +64,8 @@ class MainActivity : AppCompatActivity() {
             override fun onChildRemoved(snapshot: DataSnapshot) {}
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
         })
-
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.BLACK))
+        window.statusBarColor = colorByRating(Color.BLACK)
         textView.text = username()
         var series: PointsGraphSeries<DataPoint> = PointsGraphSeries(arrayOf())
         var series2: LineGraphSeries<DataPoint> = LineGraphSeries(arrayOf())
@@ -125,13 +120,6 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("username", "")
             startActivity(intent)
             //overridePendingTransition(0, 0)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (CONTEXT == CanvasActivity::class.java) {
-            finish()
         }
     }
 

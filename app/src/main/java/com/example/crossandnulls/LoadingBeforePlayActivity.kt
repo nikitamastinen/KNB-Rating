@@ -1,17 +1,10 @@
 package com.example.crossandnulls
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
-import com.google.firebase.database.ChildEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.database.ValueEventListener
-import kotlinx.android.synthetic.main.activity_canvas.*
-import java.time.LocalTime
 import java.util.*
-import kotlin.random.Random
+
 
 var isLoading = false
 
@@ -24,6 +17,8 @@ class LoadingBeforePlayActivity : AppCompatActivity() {
         isLoading = true
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_loading_before_play)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
         val username = username() as String
 
         var timerCnt = 3
@@ -43,33 +38,11 @@ class LoadingBeforePlayActivity : AppCompatActivity() {
         }, 0, 1000L)
 
         myRef.child("wait-list").child(username).setValue(username)
-       /*listener = myRef.child("wait-list").addValueEventListener(object: ValueEventListener {
-            override fun onCancelled(error: DatabaseError) {}
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.hasChildren()) {
-                    myRef.child("wait-list").child(username).setValue(username)
-                } else if (snapshot.hasChildren()) {
-                    for (i in snapshot.children) {
-                        if (i.value != username) {
-                            val opponentname = i.value as String
-                            helpTimer.cancel()
-                            helpTimer = Timer(true)
-                            myRef.child("wait-list").removeEventListener(this)
-                            myRef.child("wait-list").child(i.value as String).removeValue()
-                            myRef.child("users").child(username).child("games").child(opponentname).setValue("0")
-                            myRef.child("users").child(opponentname).child("games").child(username).setValue("0")
-                            break
-                        }
-                    }
-                }
-            }
-        })*/
     }
 
     override fun onPause() {
         super.onPause()
         isLoading = false
-        //listener?.let { myRef.child("wait-list").removeEventListener(it) }
         myRef.child("wait-list").child(username(CONTEXT)!!).removeValue()
         myRef.child("users").child(username(CONTEXT)!!).child("games").removeValue()
         finish()
