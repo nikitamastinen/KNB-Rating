@@ -10,11 +10,14 @@ import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import android.widget.Toast
+import com.google.android.gms.ads.MobileAds
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_start_app.*
 
+
+public var ADMOB_APP_ID: String = "ca-app-pub-7423018145794895~5385501194"
 class StartAppActivity : AppCompatActivity() {
 
     override fun onResume() {
@@ -26,6 +29,8 @@ class StartAppActivity : AppCompatActivity() {
         CONTEXT = this
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_start_app)
+
+        MobileAds.initialize(this,ADMOB_APP_ID)
 
         if (username() != null && username()!!.length  >= 3) {
             val intent = Intent(this, MainActivity::class.java)

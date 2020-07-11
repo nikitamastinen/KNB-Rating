@@ -19,6 +19,11 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.reward.RewardItem
+import com.google.android.gms.ads.reward.RewardedVideoAd
+import com.google.android.gms.ads.reward.RewardedVideoAdListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -31,10 +36,14 @@ import com.jjoe64.graphview.series.PointsGraphSeries
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_item.view.*
 import java.sql.Time
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.max
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
+    private lateinit var mRewardedVideoAd: RewardedVideoAd    //рекламный видос
+
 
     override fun onBackPressed() {
         super.onBackPressed()
@@ -46,6 +55,20 @@ class MainActivity : AppCompatActivity() {
         CONTEXT = this
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this)
+        mRewardedVideoAd.rewardedVideoAdListener = this
+        loadRewardedVideoAd()
+
+
+        nul_score.setOnClickListener {
+            if (mRewardedVideoAd.isLoaded) {
+                mRewardedVideoAd.show()
+            }
+        }
+
+
         var username = username().toString()
         myRef.child("users").child(username).child("games").addChildEventListener(object:
             ChildEventListener {
@@ -123,6 +146,45 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadRewardedVideoAd() {
+        mRewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",          //TODO зменить на настоящий идентификатор
+            AdRequest.Builder().build())
+    }
+    override fun onRewarded(reward: RewardItem) {
+        Toast.makeText(this, "onRewarded! currency: ${reward.type} amount: ${reward.amount}",
+            Toast.LENGTH_SHORT).show()
+        // Reward the user.
+    }
+
+    override fun onRewardedVideoAdLeftApplication() {
+        Toast.makeText(this, "onRewardedVideoAdLeftApplication", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRewardedVideoAdClosed() {
+        Toast.makeText(this, "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRewardedVideoAdFailedToLoad(errorCode: Int) {
+        Toast.makeText(this, "onRewardedVideoAdFailedToLoad", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRewardedVideoAdLoaded() {
+        Toast.makeText(this, "onRewardedVideoAdLoaded", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRewardedVideoAdOpened() {
+        Toast.makeText(this, "onRewardedVideoAdOpened", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRewardedVideoStarted() {
+        Toast.makeText(this, "onRewardedVideoStarted", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRewardedVideoCompleted() {
+        Toast.makeText(this, "onRewardedVideoCompleted", Toast.LENGTH_SHORT).show()
+
+    }
+
     override fun onResume() {
         super.onResume()
         CONTEXT = this
@@ -148,4 +210,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+
 }

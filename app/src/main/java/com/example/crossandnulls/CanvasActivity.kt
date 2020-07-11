@@ -6,6 +6,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -13,8 +16,11 @@ import kotlinx.android.synthetic.main.activity_canvas.*
 import java.util.*
 import kotlin.concurrent.timer
 
-class CanvasActivity : AppCompatActivity() {
 
+
+
+class CanvasActivity : AppCompatActivity() {
+    private lateinit var mInterstitialAd: InterstitialAd   //межстраничное обЪявление
     private var username: String = String()
     private var opponentname: String = String()
     private var usernameRating = ratingAtStart
@@ -23,9 +29,15 @@ class CanvasActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        val intent = Intent(this, MainActivity::class.java)
-        overridePendingTransition(0, 0)
-        startActivity(intent)
+        if (mInterstitialAd.isLoaded) {
+            mInterstitialAd.show()
+
+        } else {
+            val intent = Intent(this, MainActivity::class.java)
+            overridePendingTransition(0, 0)
+            startActivity(intent)
+        }
+
     }
     override fun onResume() {
         super.onResume()
@@ -39,6 +51,44 @@ class CanvasActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_canvas)
 
+
+        mInterstitialAd = InterstitialAd(this)
+        mInterstitialAd.adUnitId = "ca-app-pub-3940256099942544/1033173712"           //загрузка обЪявления
+        mInterstitialAd.loadAd(AdRequest.Builder().build())
+        mInterstitialAd.adListener = object: AdListener() {                       //прописывание функций
+            override fun onAdLoaded() {
+                // Code to be executed when an ad finishes loading.
+                //Код, который будет выполнен после завершения загрузки объявления.
+            }
+
+            override fun onAdFailedToLoad(errorCode: Int) {
+                // Code to be executed when an ad request fails.
+                //Код, который будет выполняться при сбое рекламного запроса..
+            }
+
+            override fun onAdOpened() {
+                // Code to be executed when the ad is displayed.
+                //Код, который будет выполнен при показе объявления
+            }
+
+            override fun onAdClicked() {        //для норм пацанов функция
+                // Code to be executed when the user clicks on an ad.
+                //Код, который будет выполняться, когда пользователь нажимает на объявление.
+            }
+
+            override fun onAdLeftApplication() {
+                // Code to be executed when the user has left the app.
+                //Код, который будет выполнен, когда пользователь покинет приложение
+            }
+
+            override fun onAdClosed() {
+                // Code to be executed when the interstitial ad is closed.
+                //Код, который будет выполняться при закрытии интерстициального объявления.
+                val intent = Intent(applicationContext, MainActivity::class.java)
+                overridePendingTransition(0, 0)
+                startActivity(intent)
+            }
+        }
         var timerCnt = 10
         var pressed = false
         username = username()!!
@@ -162,4 +212,6 @@ class CanvasActivity : AppCompatActivity() {
             myRef.child("games").child(encodeGame(username, opponentname)).child(username).setValue(4)
         }
     }
+
+
 }

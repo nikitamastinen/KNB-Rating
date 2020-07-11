@@ -115,6 +115,16 @@
 
             </LinearLayout>
 
+            <Button
+                android:id="@+id/nul_score"
+                android:layout_width="140dp"
+                android:layout_height="51dp"
+                android:text="Обнулить рейтинг"
+                app:layout_constraintBottom_toTopOf="@+id/playOnline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView"
+                app:layout_constraintTop_toTopOf="parent" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
