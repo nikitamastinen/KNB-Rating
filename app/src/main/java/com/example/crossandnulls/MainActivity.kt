@@ -66,6 +66,9 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
             if (mRewardedVideoAd.isLoaded) {
                 mRewardedVideoAd.show()
             }
+            else {
+                Toast.makeText(this, "Видео не загрузилось", Toast.LENGTH_SHORT).show()
+            }
         }
 
 
@@ -151,9 +154,20 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
             AdRequest.Builder().build())
     }
     override fun onRewarded(reward: RewardItem) {
-        Toast.makeText(this, "onRewarded! currency: ${reward.type} amount: ${reward.amount}",
-            Toast.LENGTH_SHORT).show()
-        // Reward the user.
+        Toast.makeText(this, "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show()
+        myRef.child("user").child(username(this).toString()).child("current-rating").removeValue()
+        val prefs = getSharedPreferences("UserData", Context.MODE_PRIVATE)
+        val emLst = mutableListOf<Int>()
+        var cnt = 0
+        while (prefs?.getString("rating/$cnt", "") != "") {
+            prefs?.edit()?.putString("rating/$cnt", "")?.apply()
+            cnt++
+        }
+        HISTORY.clear()
+        val intent = Intent(this,MainActivity::class.java)
+        overridePendingTransition(0,0)
+        startActivity(intent)
+        finish()
     }
 
     override fun onRewardedVideoAdLeftApplication() {
@@ -161,7 +175,7 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
     }
 
     override fun onRewardedVideoAdClosed() {
-        Toast.makeText(this, "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show()
+
     }
 
     override fun onRewardedVideoAdFailedToLoad(errorCode: Int) {
