@@ -142,6 +142,9 @@ class CanvasActivity : AppCompatActivity() {
                     }
                     putListItem(HISTORY.size, updateRating(usernameRating, opponentnameRating, r).first, this@CanvasActivity)
                     myRef.child("users").child(username).child("current-rating").setValue(updateRating(usernameRating, opponentnameRating, r).first)
+                    if (StupidPlayers.contains(opponentname)) {
+                        myRef.child("users").child(opponentname).child("current-rating").setValue(updateRating(usernameRating, opponentnameRating, r).second)
+                    }
                     positionData.removeEventListener(this)
                     positionData.removeValue()
                     Toast.makeText(this@CanvasActivity, res, Toast.LENGTH_LONG).show()

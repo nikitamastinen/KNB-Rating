@@ -17,7 +17,7 @@ import kotlin.math.roundToInt
 val myRef: DatabaseReference = FirebaseDatabase.getInstance().reference
 
 //Stupid players (non-alive)
-var StupidPlayers: MutableList<String> = mutableListOf("Кротик", "Альфред")
+var StupidPlayers: MutableList<String> = mutableListOf("Кротик", "Антип", "Гугл", "Петуш", "ASASASASA", "DOMINO", "Art")
 
 //Current context
 var CONTEXT: Context? = null

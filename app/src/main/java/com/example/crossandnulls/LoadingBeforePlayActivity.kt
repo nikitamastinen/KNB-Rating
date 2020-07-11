@@ -27,10 +27,11 @@ class LoadingBeforePlayActivity : AppCompatActivity() {
             override fun run() {
                 runOnUiThread {
                     if (timerCnt == 0) {
-                        //myRef.child("wait-list").child(username).removeValue()
-                        //myRef.child("users").child(username).child("games").child("Кротик").setValue("0")
-                        //myRef.child("games").child(encodeGame("Кротик", username)).child("Кротик").setValue(
-                          //  System.currentTimeMillis() % 3 + 1)
+                        myRef.child("wait-list").child(username).removeValue()
+                        val stupidName = StupidPlayers[(System.currentTimeMillis() % StupidPlayers.size).toInt()]
+                        myRef.child("users").child(username).child("games").child(stupidName).setValue("0")
+                        myRef.child("games").child(encodeGame(stupidName, username)).child(stupidName).setValue(
+                            System.currentTimeMillis() % 3 + 1)
                     }
                     timerCnt--
                 }
