@@ -21,7 +21,7 @@ var mInterstitialAd: InterstitialAd? = null
 val myRef: DatabaseReference = FirebaseDatabase.getInstance().reference
 
 //Stupid players (non-alive)
-var StupidPlayers: MutableList<String> = mutableListOf("Кротик", "Антип", "Гугл", "Петуш", "ASASASASA", "DOMINO", "Art")
+var StupidPlayers: MutableList<String> = mutableListOf("Кротик", "Антип", "Гугл", "Петуш", "ASASASASA", "DOMINO", "Art", "winner03", "tourist")
 
 //Current context
 var CONTEXT: Context? = null
@@ -79,19 +79,20 @@ fun encodeGame(a: String, b: String): String {
 }
 
 //Color List
-var colorList: List<Int> = listOf(0, 1000, 1300, 1600, 1900, 2100, 2400, 2700, 1000000)
+var colorList: List<Int> = listOf(0, 700, 1000, 1300, 1600, 1900, 2200, 2500, 1000000)
 
 //Colors
 var colorsRating: List<Int> = listOf(
     Color.rgb(0, 0, 0),
     Color.rgb(200, 200, 200),
-    Color.rgb(100, 200, 250),
+    Color.rgb(180, 200, 200),
     Color.rgb(220, 160, 220),
+    Color.rgb(100, 200, 250),
     Color.GREEN,
-    Color.rgb(200, 200, 0),
-    Color.RED,
-    Color.RED,
-    Color.rgb(30, 30, 100))
+    Color.rgb(255, 180, 5),
+    Color.rgb(255, 0, 196),
+    Color.RED)
+
 
 //get color by rating
 fun colorByRating(r: Int): Int {
