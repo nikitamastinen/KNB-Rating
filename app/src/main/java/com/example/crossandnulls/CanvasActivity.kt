@@ -43,8 +43,12 @@ class CanvasActivity : AppCompatActivity() {
         CONTEXT = this
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_canvas)
-        resultDialog = Dialog(this@CanvasActivity)
 
+        cam.setBackgroundResource(R.drawable.k)
+        noz.setBackgroundResource(R.drawable.n)
+        bum.setBackgroundResource(R.drawable.b)
+
+        resultDialog = Dialog(this@CanvasActivity)
         var timerCnt = 10
         var pressed = false
         username = username()!!

@@ -8,10 +8,8 @@
 
     <Button
         android:id="@+id/cam"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/button_bg_round"
-        android:text="Камень"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/bum"
         app:layout_constraintHorizontal_bias="0.5"
@@ -21,11 +19,9 @@
 
     <Button
         android:id="@+id/noz"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_marginEnd="17dp"
-        android:background="@drawable/button_bg_round"
-        android:text="Ножницы"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textView6"
         app:layout_constraintHorizontal_bias="1.0"
@@ -35,11 +31,9 @@
 
     <Button
         android:id="@+id/bum"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_marginStart="17dp"
-        android:background="@drawable/button_bg_round"
-        android:text="Бумага"
         app:layout_constraintBottom_toBottomOf="@+id/noz"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
