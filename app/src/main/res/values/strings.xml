@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Камень-Ножницы-Бумага</string>
+    <string name="clear_rating">Обнулить рейтинг</string>
 </resources>

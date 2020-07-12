@@ -1,44 +1,42 @@
 package com.example.crossandnulls
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Window
 import android.widget.Toast
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_canvas.*
+import kotlinx.android.synthetic.main.dialog_win.*
 import java.util.*
-import kotlin.concurrent.timer
-
-
-
 
 class CanvasActivity : AppCompatActivity() {
-    private lateinit var mInterstitialAd: InterstitialAd   //межстраничное обЪявление
     private var username: String = String()
     private var opponentname: String = String()
     private var usernameRating = ratingAtStart
     private var opponentnameRating = ratingAtStart
     private var finished = false
+    private var resultDialog: Dialog? = null
 
     override fun onBackPressed() {
         super.onBackPressed()
-        if (mInterstitialAd.isLoaded) {
-            mInterstitialAd.show()
-
-        } else {
-            val intent = Intent(this, MainActivity::class.java)
-            overridePendingTransition(0, 0)
-            startActivity(intent)
-        }
-
+        resultDialog = null
+        resultDialog?.dismiss()
+        val intent = Intent(this, AdvertismentActivity::class.java)
+        overridePendingTransition(0, 0)
+        startActivity(intent)
+        finish()
     }
+
     override fun onResume() {
         super.onResume()
         CONTEXT = this
@@ -50,49 +48,15 @@ class CanvasActivity : AppCompatActivity() {
         CONTEXT = this
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_canvas)
+        resultDialog = Dialog(this@CanvasActivity)
 
-
-        mInterstitialAd = InterstitialAd(this)
-        mInterstitialAd.adUnitId = "ca-app-pub-3940256099942544/1033173712"           //загрузка обЪявления
-        mInterstitialAd.loadAd(AdRequest.Builder().build())
-        mInterstitialAd.adListener = object: AdListener() {                       //прописывание функций
-            override fun onAdLoaded() {
-                // Code to be executed when an ad finishes loading.
-                //Код, который будет выполнен после завершения загрузки объявления.
-            }
-
-            override fun onAdFailedToLoad(errorCode: Int) {
-                // Code to be executed when an ad request fails.
-                //Код, который будет выполняться при сбое рекламного запроса..
-            }
-
-            override fun onAdOpened() {
-                // Code to be executed when the ad is displayed.
-                //Код, который будет выполнен при показе объявления
-            }
-
-            override fun onAdClicked() {        //для норм пацанов функция
-                // Code to be executed when the user clicks on an ad.
-                //Код, который будет выполняться, когда пользователь нажимает на объявление.
-            }
-
-            override fun onAdLeftApplication() {
-                // Code to be executed when the user has left the app.
-                //Код, который будет выполнен, когда пользователь покинет приложение
-            }
-
-            override fun onAdClosed() {
-                // Code to be executed when the interstitial ad is closed.
-                //Код, который будет выполняться при закрытии интерстициального объявления.
-                val intent = Intent(applicationContext, MainActivity::class.java)
-                overridePendingTransition(0, 0)
-                startActivity(intent)
-            }
-        }
         var timerCnt = 10
         var pressed = false
         username = username()!!
         opponentname = intent.getStringExtra("opponentname")!!
+
+        opponentnameCanvas.text = username
+        usernameCanvas.text = opponentname
 
         val positionData = myRef.child("games").child(encodeGame(username, opponentname))
         timer.scheduleAtFixedRate(object : TimerTask() {
@@ -104,8 +68,18 @@ class CanvasActivity : AppCompatActivity() {
                             cam.isClickable  = false
                             noz.isClickable  = false
                             bum.isClickable  = false
-                            positionData.child(username).setValue("4")
+                            positionData.removeValue()
                             finished = true
+                            resultDialog?.setCancelable(false)
+                            resultDialog?.setCanceledOnTouchOutside(true)
+                            resultDialog?.setContentView(R.layout.dialog_win)
+                            resultDialog?.result_win?.text = "Игра прервана"
+                            val showRes = 0
+                            resultDialog?.score_win?.text = ("") + showRes.toString()
+                            resultDialog?.exit_win?.setOnClickListener {
+                                resultDialog?.dismiss()
+                            }
+                            resultDialog?.show()
                         }
                     }
                     timeCanvas.text = timerCnt.toString()
@@ -163,14 +137,43 @@ class CanvasActivity : AppCompatActivity() {
                 pressed = true
             }
         }
+        val listener = positionData.addChildEventListener(object : ChildEventListener {
+            override fun onCancelled(error: DatabaseError) {}
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+                timer.cancel()
+                cam.isClickable  = false
+                noz.isClickable  = false
+                bum.isClickable  = false
+                positionData.removeValue()
+                resultDialog?.setCancelable(false)
+                resultDialog?.setCanceledOnTouchOutside(true)
+                resultDialog?.setContentView(R.layout.dialog_win)
+                resultDialog?.result_win?.text = "Игра прервана"
+                val showRes = 0
+                resultDialog?.score_win?.text = ("") + showRes.toString()
+                resultDialog?.show()
+                resultDialog?.exit_win?.setOnClickListener {
+                    resultDialog?.dismiss()
+                }
+                positionData.removeEventListener(this)
+            }
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+        })
+        Log.w("HHHHH", "onCreate")
         positionData.addValueEventListener(object : ValueEventListener {
             override fun onCancelled(error: DatabaseError) {}
+            @SuppressLint("SetTextI18n")
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.childrenCount.toInt() == 2) {
+                if (snapshot.childrenCount.toInt() == 2 && !finished) {
+                    finished = true
+                    timer.cancel()
+                    positionData.removeEventListener(this)
+                    positionData.removeEventListener(listener)
                     cam.isClickable  = false
                     noz.isClickable  = false
                     bum.isClickable  = false
-                    finished = true
                     val res: String
                     Log.w("YYY", snapshot.child(opponentname).value.toString())
                     val x = snapshot.child(username).value.toString().toInt()
@@ -178,14 +181,14 @@ class CanvasActivity : AppCompatActivity() {
                     val r: Double
                     res = if (x == y) {
                         "Ничья:|"
-                    } else if (y == 4 || (x == 3 && y == 2) || (x == 2 && y == 1) || (x == 1) && (y == 3)) {
+                    } else if ((x == 3 && y == 2) || (x == 2 && y == 1) || (x == 1 && y == 3)) {
                         "Победа:)"
                     } else {
                         "Поражение:("
                     }
                     r = if (x == y) {
                         0.5
-                    } else if ((x == 3 && y == 2) || (x == 2 && y == 1) || (x == 1) && (y == 3)) {
+                    } else if ((x == 3 && y == 2) || (x == 2 && y == 1) || (x == 1 && y == 3)) {
                         1.0
                     } else {
                         0.0
@@ -195,22 +198,35 @@ class CanvasActivity : AppCompatActivity() {
                     if (StupidPlayers.contains(opponentname)) {
                         myRef.child("users").child(opponentname).child("current-rating").setValue(updateRating(usernameRating, opponentnameRating, r).second)
                     }
-                    positionData.removeEventListener(this)
                     positionData.removeValue()
-                    Toast.makeText(this@CanvasActivity, res, Toast.LENGTH_LONG).show()
+                    resultDialog?.setCancelable(false)
+                    resultDialog?.setCanceledOnTouchOutside(true)
+                    resultDialog?.setContentView(R.layout.dialog_win)
+                    resultDialog?.result_win?.text = res
+                    val showRes = updateRating(usernameRating, opponentnameRating, r).first - usernameRating
+                    resultDialog?.score_win?.text = (if (showRes > 0) "+" else "") + showRes.toString()
+                    resultDialog?.exit_win?.setOnClickListener {
+                        resultDialog?.dismiss()
+                    }
+                    resultDialog?.show()
+                    Log.w("HHHHH", HISTORY.toString())
+                    Log.w("HHHHH", finished.toString())
                 }
             }
         })
     }
 
+    override fun onPause() {
+        super.onPause()
+        resultDialog = null
+        opponentnameCanvas.text = username
+        usernameCanvas.text = opponentname
+        myRef.child("games").child(encodeGame(username, opponentname)).removeValue()
+    }
+
     override fun onStop() {
         super.onStop()
-        timer.cancel()
-        username = username()!!
-        opponentname = intent.getStringExtra("opponentname")!!
-        if (!finished) {
-            myRef.child("games").child(encodeGame(username, opponentname)).child(username).setValue(4)
-        }
+        resultDialog  = null
     }
 
 

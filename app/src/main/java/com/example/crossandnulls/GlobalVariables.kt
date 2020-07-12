@@ -3,6 +3,7 @@ package com.example.crossandnulls
 import android.content.Context
 import android.graphics.Color
 import android.util.Log
+import com.google.android.gms.ads.InterstitialAd
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.jjoe64.graphview.GraphView
@@ -12,6 +13,9 @@ import java.lang.Math.abs
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
+
+//межстраничное объявление
+var mInterstitialAd: InterstitialAd? = null
 
 // Database
 val myRef: DatabaseReference = FirebaseDatabase.getInstance().reference

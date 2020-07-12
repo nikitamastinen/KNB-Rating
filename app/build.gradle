@@ -39,5 +39,5 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     //NVM addea
     implementation 'com.jjoe64:graphview:4.2.2'
-    implementation 'com.google.android.gms:play-services-ads:19.1.0'
+    implementation 'com.google.android.gms:play-services-ads:19.2.0'
 }

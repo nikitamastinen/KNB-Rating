@@ -1,30 +1,21 @@
 package com.example.crossandnulls
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.util.AttributeSet
 import android.util.Log
-import android.view.MotionEvent
 import android.view.View
-import android.view.View.inflate
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.reward.RewardItem
 import com.google.android.gms.ads.reward.RewardedVideoAd
 import com.google.android.gms.ads.reward.RewardedVideoAdListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -35,14 +26,12 @@ import com.jjoe64.graphview.series.LineGraphSeries
 import com.jjoe64.graphview.series.PointsGraphSeries
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_item.view.*
-import java.sql.Time
-import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.max
 
 class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
     private lateinit var mRewardedVideoAd: RewardedVideoAd    //рекламный видос
+
 
 
     override fun onBackPressed() {
@@ -56,11 +45,17 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        mInterstitialAd = InterstitialAd(this)
+        mInterstitialAd?.adUnitId = "ca-app-pub-3940256099942544/1033173712"           //загрузка обЪявления
+        mInterstitialAd?.loadAd(AdRequest.Builder().build())
+
+        Toast.makeText(this, HISTORY.toString(), Toast.LENGTH_LONG).show()
+
+        nul_score.paintFlags = nul_score.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
         mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this)
         mRewardedVideoAd.rewardedVideoAdListener = this
         loadRewardedVideoAd()
-
 
         nul_score.setOnClickListener {
             if (mRewardedVideoAd.isLoaded) {
@@ -83,6 +78,7 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
                     myRef.child("users").child(username).child("games").removeValue()
                     val intent = Intent(CONTEXT, CanvasActivity::class.java)
                     intent.putExtra("opponentname", snapshot.key.toString())
+                    overridePendingTransition(0, 0)
                     startActivity(intent)
                 }
             }
@@ -155,15 +151,12 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
     }
     override fun onRewarded(reward: RewardItem) {
         Toast.makeText(this, "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show()
-        myRef.child("user").child(username(this).toString()).child("current-rating").removeValue()
+        myRef.child("users").child(username(this).toString()).child("current-rating").removeValue()
         val prefs = getSharedPreferences("UserData", Context.MODE_PRIVATE)
-        val emLst = mutableListOf<Int>()
-        var cnt = 0
-        while (prefs?.getString("rating/$cnt", "") != "") {
-            prefs?.edit()?.putString("rating/$cnt", "")?.apply()
-            cnt++
-        }
+        var name = username()
+        prefs.edit().clear().apply()
         HISTORY.clear()
+        prefs.edit().putString("username", name).apply()
         val intent = Intent(this,MainActivity::class.java)
         overridePendingTransition(0,0)
         startActivity(intent)
