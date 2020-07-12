@@ -69,7 +69,7 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mInterstitialAd = InterstitialAd(this)
-        mInterstitialAd?.adUnitId = "ca-app-pub-3940256099942544/1033173712"           //загрузка обЪявления
+        mInterstitialAd?.adUnitId = "ca-app-pub-8137188857901546/6252269429"           //загрузка обЪявления
         mInterstitialAd?.loadAd(AdRequest.Builder().build())
         nul_score.paintFlags = nul_score.paintFlags or Paint.UNDERLINE_TEXT_FLAG
         mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this)
@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
     }
 
     private fun loadRewardedVideoAd() {
-        mRewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",          //TODO зменить на настоящий идентификатор
+        mRewardedVideoAd.loadAd("ca-app-pub-8137188857901546/4556044372",          //TODO зменить на настоящий идентификатор
             AdRequest.Builder().build())
     }
     override fun onRewarded(reward: RewardItem) {

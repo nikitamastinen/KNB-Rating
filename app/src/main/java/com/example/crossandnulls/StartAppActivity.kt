@@ -17,7 +17,7 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_start_app.*
 
 
-public var ADMOB_APP_ID: String = "ca-app-pub-7423018145794895~5385501194"
+public var ADMOB_APP_ID: String = "ca-app-pub-8137188857901546~5130759449"
 
 class StartAppActivity : AppCompatActivity() {
 
