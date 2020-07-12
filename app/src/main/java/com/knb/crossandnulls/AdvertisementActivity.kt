@@ -1,11 +1,9 @@
-package com.example.crossandnulls
+package com.knb.crossandnulls
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
 
 class AdvertismentActivity : AppCompatActivity() {
 

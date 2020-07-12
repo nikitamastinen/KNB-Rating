@@ -1,16 +1,11 @@
-package com.example.crossandnulls
+package com.knb.crossandnulls
 
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
-import android.widget.TextView
 import android.widget.Toast
-import com.google.android.gms.ads.MobileAds
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener

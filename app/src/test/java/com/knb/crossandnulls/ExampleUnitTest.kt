@@ -1,4 +1,4 @@
-package com.example.crossandnulls
+package com.knb.crossandnulls
 
 import org.junit.Test
 

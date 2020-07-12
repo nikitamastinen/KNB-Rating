@@ -1,4 +1,4 @@
-package com.example.crossandnulls
+package com.knb.crossandnulls
 
 import android.content.Context
 import android.graphics.Color
@@ -9,7 +9,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import java.lang.Math.abs
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.roundToInt
