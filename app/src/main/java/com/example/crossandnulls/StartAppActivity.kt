@@ -42,7 +42,7 @@ class StartAppActivity : AppCompatActivity() {
                     if (v?.text == null || v.text?.length!! < 3) {
                         Toast.makeText(this@StartAppActivity, "Слишком короткое имя", Toast.LENGTH_LONG).show()
                     } else {
-                        if (v.text.length > 10) {
+                        if (v.text.length > 12) {
                             Toast.makeText(this@StartAppActivity, "Слишком длинное имя", Toast.LENGTH_LONG).show()
                         } else if (v.text.toString().contains(' ')) {
                             Toast.makeText(this@StartAppActivity, "Имя не должно содержать пробелы", Toast.LENGTH_LONG).show()
@@ -72,7 +72,7 @@ class StartAppActivity : AppCompatActivity() {
                 if (editText.text == null || editText.text .length!! < 3) {
                     Toast.makeText(this@StartAppActivity, "Слишком короткое имя", Toast.LENGTH_LONG).show()
                 } else {
-                    if (editText.text.length > 20) {
+                    if (editText.text.length > 12) {
                         Toast.makeText(this@StartAppActivity, "Слишком длинное имя", Toast.LENGTH_LONG).show()
                     } else if (editText.text.toString().contains(' ')) {
                         Toast.makeText(this@StartAppActivity, "Имя не должно содержать пробелы", Toast.LENGTH_LONG).show()

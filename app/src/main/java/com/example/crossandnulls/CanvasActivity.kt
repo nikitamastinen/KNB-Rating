@@ -6,11 +6,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Window
-import android.widget.Toast
-import com.google.android.gms.ads.AdListener
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.InterstitialAd
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -60,6 +55,7 @@ class CanvasActivity : AppCompatActivity() {
 
         val positionData = myRef.child("games").child(encodeGame(username, opponentname))
         timer.scheduleAtFixedRate(object : TimerTask() {
+            @SuppressLint("SetTextI18n")
             override fun run() {
                 runOnUiThread {
                     if (timerCnt == 0) {
@@ -141,6 +137,7 @@ class CanvasActivity : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {}
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+            @SuppressLint("SetTextI18n")
             override fun onChildRemoved(snapshot: DataSnapshot) {
                 timer.cancel()
                 cam.isClickable  = false

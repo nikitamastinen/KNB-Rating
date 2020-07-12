@@ -1,5 +1,6 @@
 package com.example.crossandnulls
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -7,6 +8,8 @@ import android.graphics.Paint
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -31,8 +34,29 @@ import kotlin.math.max
 
 class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
     private lateinit var mRewardedVideoAd: RewardedVideoAd    //рекламный видос
+    private var videoPass = false
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+
+            R.id.settings -> {
+                if (mRewardedVideoAd.isLoaded) {
+                    videoPass = true
+                    mRewardedVideoAd.show()
+                } else {
+                    Toast.makeText(this, "Видео не загрузилось", Toast.LENGTH_SHORT).show()
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onBackPressed() {
         super.onBackPressed()
@@ -44,19 +68,13 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
         CONTEXT = this
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         mInterstitialAd = InterstitialAd(this)
         mInterstitialAd?.adUnitId = "ca-app-pub-3940256099942544/1033173712"           //загрузка обЪявления
         mInterstitialAd?.loadAd(AdRequest.Builder().build())
-
-        Toast.makeText(this, HISTORY.toString(), Toast.LENGTH_LONG).show()
-
         nul_score.paintFlags = nul_score.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-
         mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this)
         mRewardedVideoAd.rewardedVideoAdListener = this
         loadRewardedVideoAd()
-
         nul_score.setOnClickListener {
             if (mRewardedVideoAd.isLoaded) {
                 mRewardedVideoAd.show()
@@ -65,9 +83,7 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
                 Toast.makeText(this, "Видео не загрузилось", Toast.LENGTH_SHORT).show()
             }
         }
-
-
-        var username = username().toString()
+        val username = username().toString()
         myRef.child("users").child(username).child("games").addChildEventListener(object:
             ChildEventListener {
             override fun onCancelled(error: DatabaseError) {}
@@ -104,7 +120,6 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
 
 
         val snapshot = getList(this)
-        Toast.makeText(this, snapshot.size.toString(), Toast.LENGTH_LONG).show()
         if (snapshot.isNotEmpty()) {
             HISTORY = snapshot as MutableList<Int>
             val text = username() + " (" + HISTORY.last() + ")"
@@ -150,47 +165,45 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
             AdRequest.Builder().build())
     }
     override fun onRewarded(reward: RewardItem) {
-        Toast.makeText(this, "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show()
-        myRef.child("users").child(username(this).toString()).child("current-rating").removeValue()
-        val prefs = getSharedPreferences("UserData", Context.MODE_PRIVATE)
-        var name = username()
-        prefs.edit().clear().apply()
-        HISTORY.clear()
-        prefs.edit().putString("username", name).apply()
-        val intent = Intent(this,MainActivity::class.java)
-        overridePendingTransition(0,0)
-        startActivity(intent)
-        finish()
+        if (!videoPass) {
+            myRef.child("users").child(username(this).toString()).child("current-rating")
+                .removeValue()
+            val prefs = getSharedPreferences("UserData", Context.MODE_PRIVATE)
+            val name = username()
+            prefs.edit().clear().apply()
+            HISTORY.clear()
+            prefs.edit().putString("username", name).apply()
+            val intent = Intent(this, MainActivity::class.java)
+            overridePendingTransition(0, 0)
+            startActivity(intent)
+            finish()
+        } else {
+            val intent = Intent(this, ChangeNameActivity::class.java)
+            overridePendingTransition(0, 0)
+            startActivity(intent)
+        }
+        videoPass = false
     }
 
     override fun onRewardedVideoAdLeftApplication() {
-        Toast.makeText(this, "onRewardedVideoAdLeftApplication", Toast.LENGTH_SHORT).show()
+        videoPass = false
     }
 
     override fun onRewardedVideoAdClosed() {
-
+        videoPass  = false
     }
 
     override fun onRewardedVideoAdFailedToLoad(errorCode: Int) {
-        Toast.makeText(this, "onRewardedVideoAdFailedToLoad", Toast.LENGTH_SHORT).show()
+        videoPass = false
     }
 
-    override fun onRewardedVideoAdLoaded() {
-        Toast.makeText(this, "onRewardedVideoAdLoaded", Toast.LENGTH_SHORT).show()
-    }
+    override fun onRewardedVideoAdLoaded() {}
 
-    override fun onRewardedVideoAdOpened() {
-        Toast.makeText(this, "onRewardedVideoAdOpened", Toast.LENGTH_SHORT).show()
-    }
+    override fun onRewardedVideoAdOpened() {}
 
-    override fun onRewardedVideoStarted() {
-        Toast.makeText(this, "onRewardedVideoStarted", Toast.LENGTH_SHORT).show()
-    }
+    override fun onRewardedVideoStarted() {}
 
-    override fun onRewardedVideoCompleted() {
-        Toast.makeText(this, "onRewardedVideoCompleted", Toast.LENGTH_SHORT).show()
-
-    }
+    override fun onRewardedVideoCompleted() {}
 
     override fun onResume() {
         super.onResume()
@@ -199,6 +212,7 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
         username()
         myRef.child("users").orderByChild("current-rating").limitToLast(30).addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onCancelled(error: DatabaseError) {}
+            @SuppressLint("SetTextI18n")
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (i in snapshot.children) {
                     if (i.hasChild("current-rating")) {
@@ -206,10 +220,10 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
                     }
                 }
                 ratingLinearLayout.removeAllViews()
-                for (i in TOP.reversed()) {
+                for ((id, i) in TOP.reversed().withIndex()) {
                     val view: View =
                         layoutInflater.inflate(R.layout.activity_main_item, ratingLinearLayout, false)
-                    view.itemName.text = i.first
+                    view.itemName.text = (id + 1).toString() + ". " + i.first
                     view.itemName.setTextColor(colorByRating(i.second))
                     view.itemRating.text = i.second.toString()
                     ratingLinearLayout.addView(view)
@@ -217,6 +231,4 @@ class MainActivity : AppCompatActivity(), RewardedVideoAdListener {
             }
         })
     }
-
-
 }

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Камень-Ножницы-Бумага</string>
-    <string name="clear_rating">Обнулить рейтинг</string>
+    <string name="clear_rating">Обнулить рейтинг (за 1 видео)</string>
+    <string name="change_name"><font fgcolor='#00cc22'>Сменить имя (за 1 видео)</font></string>
 </resources>
